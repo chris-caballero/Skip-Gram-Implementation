@@ -1,1 +1,3 @@
-# Skip-Gram-Implementation
+#### Skip-Gram-Implementation
+
+* skip-gram.py
