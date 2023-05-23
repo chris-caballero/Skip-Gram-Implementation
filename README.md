@@ -1,5 +1,4 @@
 ## **Skip Gram Implementation**
-***
 Undertaking this project as one of my initial explorations into machine learning was an invaluable experience, greatly enriching my understanding of neural network development. Through this endeavor, I have immersed myself in the intricacies of creating neural networks, allowing me to grasp the underlying concepts with greater depth. Overall, this project played huge role in expanding my knowledge and developing a deeper appreciation for the nuances involved in neural network development.
 ***
 ### **How to run:**
