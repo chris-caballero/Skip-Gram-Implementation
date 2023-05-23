@@ -1,28 +1,37 @@
 ## **Skip Gram Implementation**
-Undertaking this project as one of my initial explorations into machine learning was an invaluable experience, greatly enriching my understanding of neural network development. Through this endeavor, I have immersed myself in the intricacies of creating neural networks, allowing me to grasp the underlying concepts with greater depth. Overall, this project played huge role in expanding my knowledge and developing a deeper appreciation for the nuances involved in neural network development.
-***
-### **How to run:**
-To run the model
-<code>scripts/skip_gram_test.py</code>
-on the toy corpus 
-<code>data/word_dataset.txt</code>:
 
-```
+Undertaking this project as one of my initial explorations into machine learning was an invaluable experience, greatly enriching my understanding of neural network development. Through this endeavor, I have immersed myself in the intricacies of creating neural networks, allowing me to grasp the underlying concepts with greater depth. Overall, this project played a huge role in expanding my knowledge and developing a deeper appreciation for the nuances involved in neural network development.
+
+***
+
+### **How to Run**
+
+To run the model on the toy corpus, follow these steps:
+
+1. Execute the script `scripts/skip_gram_test.py`.
+2. Specify the toy corpus file `data/word_dataset.txt`.
+
+```shell
 python skip_gram_test.py
 ```
 
-This will create **.gif** files in the <code>visualizations</code> folder.
+This will generate **.gif** files in the `visualizations` folder.
 
 ***
+
 ### **Results**
-I decided to verify the results by tracking the vectors through training, along with the probability convergence. The training process of this program relies on a straightforward Python and NumPy implementation, which inherently restricts its scalability. However, operating at smaller scales fulfills the intended purpose and facilitates a more interactive and engaging experience.
-#### <code>visualizations/vector_movement.gif</code>
-- This allows us to visualize the convergence of word vectors based on the word distributions in the toy corpus.
-- At scale, various semantic relationships emerge.
-<br>
-<img src="visualizations/vector_movement.gif" alt="Animation" width="400">
-#### <code>visualizations/probability_convergence.gif</code><br>
-- This visualization shows the model converging to the ground truth distribution of the words in the context of **'every'** in the dataset.
-- The probabilities are sorted for comparison.
-<br>
-<img src="visualizations/probability_convergence.gif" alt="Animation" width="400">
+
+In order to verify the results, I tracked the vectors during the training process and observed the convergence of probabilities. The implementation relies on a straightforward Python and NumPy approach, which inherently limits its scalability. However, it performs effectively at smaller scales, fulfilling its intended purpose and providing an interactive and engaging experience.
+
+#### Vector Movement Animation
+
+The animation below visualizes the convergence of word vectors based on the word distributions in the toy corpus. As the training progresses, various semantic relationships start to emerge.
+
+<img src="visualizations/vector_movement.gif" alt="Vector Movement Animation" width="400">
+
+#### Probability Convergence Animation
+
+The animation below demonstrates the model converging to the ground truth distribution of words in the context of **'every'** within the dataset. The probabilities are sorted for comparison.
+
+<img src="visualizations/probability_convergence.gif" alt="Probability Convergence Animation" width="400">
+
