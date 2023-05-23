@@ -25,7 +25,7 @@ In order to verify the results, I tracked the vectors during the training proces
 
 #### Vector Movement Animation
 
-The animation below visualizes the convergence of word vectors based on the word distributions in the toy corpus. As the training progresses, various semantic relationships start to emerge.
+The animation below visualizes the convergence of word vectors based on the word distributions in the toy corpus. As the training progresses, various semantic relationships start to emerge - this is significantly more evident in large scale efficient implementations of the Skip-Gram model.
 
 <img src="visualizations/vector_movement.gif" alt="Vector Movement Animation" width="400">
 
