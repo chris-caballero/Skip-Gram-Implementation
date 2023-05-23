@@ -3,11 +3,9 @@ from skip_gram import *
 from skip_gram_util import * 
 
 def main():
-    file = 'word_dataset.txt'
+    file = '../data/word_dataset.txt'
     data, contents = get_data(file)
     word_to_int, int_to_word, vocabulary = encode_words(data)
-    # print('Unique: ', len(vocabulary))
-    # print('Total: ', len(data), '\n')
 
     window_size = 2
     num_features = 10
@@ -38,12 +36,10 @@ def main():
 
     # print_info(list(word_to_int.keys()), embedding_matrix, weights_out, word_to_int, int_to_word)
     animation = visualize_data(vectors_over_time, x, y_true, pred_over_time, epochs, int_to_word, mode=0)
-    plt.show()
-    animation.save('vector_movement.mp4')
+    animation.save('../visualizations/vector_movement.gif')
     
-    animation = visualize_data(vectors_over_time, x, y_true, pred_over_time, epochs, int_to_word, mode=1)
-    plt.show()
-    animation.save('loss_convergence.mp4')
+    animation = visualize_data(vectors_over_time, x, y_true, pred_over_time, epochs, int_to_word, test_word=int_to_word[test_word], mode=1)
+    animation.save('../visualizations/probability_convergence.gif')
     
   
 if __name__ == "__main__":
