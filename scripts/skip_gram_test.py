@@ -12,8 +12,9 @@ def main():
     window_size = 2
     num_features = 10
     training_data = generate_training_data(data, window_size, word_to_int)
-    x_train = np.array([pair[0] for pair in training_data])
-    y_train = np.array([pair[1] for pair in training_data])
+
+    x_train = [pair[0] for pair in training_data]
+    y_train = [pair[1] for pair in training_data]
 
     embedding_matrix = np.random.uniform(-1, 1, (len(vocabulary), num_features))
     weights_out = np.random.uniform(-1, 1, (num_features, len(vocabulary)))
@@ -35,9 +36,15 @@ def main():
 
     sort_predictions(pred_over_time)
 
-    mode = 0
-    print_info(list(word_to_int.keys()), embedding_matrix, weights_out, word_to_int, int_to_word)
-    visualize_data(vectors_over_time, x, y_true, pred_over_time, epochs, int_to_word, mode)
+    # print_info(list(word_to_int.keys()), embedding_matrix, weights_out, word_to_int, int_to_word)
+    animation = visualize_data(vectors_over_time, x, y_true, pred_over_time, epochs, int_to_word, mode=0)
+    plt.show()
+    animation.save('vector_movement.mp4')
+    
+    animation = visualize_data(vectors_over_time, x, y_true, pred_over_time, epochs, int_to_word, mode=1)
+    plt.show()
+    animation.save('loss_convergence.mp4')
+    
   
 if __name__ == "__main__":
     main()
