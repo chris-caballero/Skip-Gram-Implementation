@@ -3,6 +3,6 @@
 * skip-gram.py
 
 
-![Animation](visualization/vector_movement.mp4)
+![Animation](visualizations/vector_movement.mp4)
 
-![Animation](visualization/loss_convergence.mp4)
+![Animation](visualizations/loss_convergence.mp4)
