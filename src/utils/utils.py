@@ -1,5 +1,58 @@
+import re
 import numpy as np
 from math import exp
+from sklearn.decomposition import TruncatedSVD
+from collections import defaultdict
+
+# process contents of a text file into list of words
+def get_data(filename):
+    contents = []
+    with open(filename, 'r') as f:
+        lines = f.read()
+    
+    return lines
+
+# def process_data(filename):
+
+# integer encoding so each word gets a unique index
+def encode_words(data):
+    # we want unique words
+    vocabulary = list(set(data))
+    word_to_int = dict((word, i) for i, word in enumerate(vocabulary))
+    int_to_word = dict((i, word) for i, word in enumerate(vocabulary))
+    return word_to_int, int_to_word, vocabulary
+
+# prints the training data in string representation
+def print_training_data(training_data, int_to_word):
+    for pair in training_data:
+        print('Target: ', int_to_word[pair[0][1]])
+        print('Context: ', pair[1][1])
+        print('\n')
+
+# prints the training data in vector representation
+def print_training_data_raw(training_data):
+    for pair in training_data:
+        print('Target: ', pair[0], '\nContext: ', pair[1])
+        print('\n')
+
+
+def print_info(testset, embedding_matrix, weights_out, word_to_int, int_to_word):
+    from utils.utils import forward_pass, cos_similarity_dict
+    num_similar = 10
+    for word in testset:
+        h, y, s = forward_pass(
+            word_to_int[word], embedding_matrix, weights_out)
+        similarities_in, similarities_out = cos_similarity_dict(
+            word, embedding_matrix, weights_out.T, word_to_int, int_to_word)
+        # print target word, context prediction with certainty, and a few of the most similar word vectors
+        print('{:<15}'.format('Target:'), word)
+        print('{:<15}'.format('Prediction:'), int_to_word[np.argmax(y)])
+        print('{:<15}'.format('Probability:'), y[np.argmax(y)].round(4))
+        print('{:<15}'.format('Most similar Input:'),
+              list(similarities_in)[:num_similar])
+        print('{:<15}'.format('Most similar Output:'),
+              list(similarities_out)[:num_similar], '\n')
+
 
 # makes the one-hot vector representation for a given word
 def generate_one_hot(word, word_to_int):
@@ -39,6 +92,14 @@ def softmax(score):
         score[i] = exp(score[i]) / sum_exp
     return score
 
+'''
+def softmax(score):
+    exp_scores = np.exp(score - np.max(score))  # Improved numerical stability
+    return exp_scores / exp_scores.sum()
+
+
+'''
+
 # evaluates the loss function for the predicted score
 def loss(context, score):
     loss = len(context)*np.log(np.sum(np.exp(score)))
@@ -48,7 +109,7 @@ def loss(context, score):
 
 # generate prediction of context on current target word
 def forward_pass(target_idx, embedding_matrix, weight_matrix_out):
-    # choosing the right word vector from out embedding matrix
+    # choosing the right word vector from our embedding matrix
     hidden_layer = embedding_matrix[target_idx]
     # pass from hidden layer to output layer creates scores for each word in vocab
     score = np.dot(weight_matrix_out.T, hidden_layer)
@@ -62,7 +123,7 @@ def forward_pass(target_idx, embedding_matrix, weight_matrix_out):
 def prediction_error(context, y_pred):
     # error is going to be y_pred - 1 at each context word index
     # otherwise it is y_pred
-    error = len(context)*y_pred.copy()
+    error = len(context)*y_pred
     for context_word in context:
         error[context_word[1]] -= 1
     return error
@@ -74,6 +135,16 @@ def update_weights_out(hidden_layer, weights_out, pred_errors, learning_rate):
         weights_out_T[j] -= learning_rate*pred_errors[j]*hidden_layer
     # returns the updates weights, must set the old weights to this
     weights_out[:] = weights_out_T.T
+
+
+'''
+def update_weights_out(hidden_layer, weights_out, pred_errors, learning_rate):
+    weights_out -= learning_rate * np.outer(hidden_layer, pred_errors)
+
+def update_weights_in(target, weights_in, weights_out, pred_errors, learning_rate):
+    EH = np.dot(weights_out, pred_errors)
+    weights_in[target[1]] -= learning_rate * EH
+'''
 
 # update the input->hidden weights with gradient descent
 def update_weights_in(target, weights_in, weights_out, pred_errors, learning_rate):
@@ -88,7 +159,6 @@ def backward_propagation(target, context, hidden_layer, y_pred, weights_in, weig
 
 # trains the network over epochs
 def train(x_train, y_train, weights_in, weights_out, epochs, learning_rate, focus = 0, verbose=1):
-    from sklearn.decomposition import TruncatedSVD
     vectors_over_time = list()
     pred_over_time = list()
     for i in range(epochs):
@@ -113,26 +183,24 @@ def cos_dist(x, y):
 # creates cosine similarity dictionary sorted by most similar
 # given a word, makes a dictionary with each other word in vocab and similarity b/w them
 def cos_similarity_dict(word, embedding_matrix, weights_out, word_to_int, int_to_word, mode=0):
-    if mode == 1:
-        similarities = dict()
-        word_vector = embedding_matrix[word_to_int[word]]
-        for i in range(len(embedding_matrix)):
-            similarities[int_to_word[i]] = cos_dist(word_vector, embedding_matrix[i]).round(4)
-        return sorted(similarities.items(), key=lambda item: item[1], reverse=True)
-    elif mode == 2:
-        similarities = dict()
-        word_vector = embedding_matrix[word_to_int[word]]
-        for i in range(len(weights_out)):
-            similarities[int_to_word[i]] = cos_dist(word_vector, weights_out[i]).round(4)
-        return sorted(similarities.items(), key=lambda item: item[1], reverse=True)
-
-    similarities_in = dict()
-    similarities_out = dict()
     word_vector = embedding_matrix[word_to_int[word]]
-    for i in range(len(embedding_matrix)):
-        similarities_in[int_to_word[i]] = cos_dist(word_vector, embedding_matrix[i]).round(4)
-        similarities_out[int_to_word[i]] = cos_dist(word_vector, weights_out[i]).round(4)
-    return sorted(similarities_in.items(), key=lambda item: item[1], reverse=True), sorted(similarities_out.items(), key=lambda item: item[1], reverse=True)
+
+    if mode == 1:
+        similarities = {
+            int_to_word[i] : cos_dist(word_vector, embedding_matrix[i]) for i in range(len(embedding_matrix))
+        }
+    elif mode == 2:
+        similarities = {
+            int_to_word[i] : cos_dist(word_vector, weights_out[i]) for i in range(len(weights_out))
+        }
+    else:
+        similarities_in = {int_to_word[i]: cos_dist(word_vector, embedding_matrix[i]) for i in range(len(embedding_matrix))}
+        similarities_out = {int_to_word[i]: cos_dist(word_vector, weights_out[i]) for i in range(len(weights_out))}
+
+        return  sorted(similarities_in.items(), key=lambda item: item[1], reverse=True), \
+                sorted(similarities_out.items(), key=lambda item: item[1], reverse=True)
+
+    return sorted(similarities.items(), key=lambda item: item[1], reverse=True)
 
 def target_to_total_context(training_data):
     target_total_context = dict()
@@ -173,3 +241,39 @@ def sort_predictions(pred_over_time):
     for i in range(len(pred_over_time)):
         for j in range(size):
             pred_over_time[i][j] = pred_over_time[i][j][1]
+
+'''
+def target_to_total_context(training_data):
+    target_total_context = defaultdict(float)  # Use defaultdict for cleaner initialization
+    num_appearances = defaultdict(int)  # Use defaultdict for cleaner initialization
+    
+    for target, context in training_data:
+        target_idx = target[1]
+        num_appearances[target_idx] += 1
+        for context_word in context:
+            target_total_context[target_idx] += context_word[0]
+    
+    return target_total_context, num_appearances
+
+def ground_truth(vocab_size, training_data, window_size):
+    target_total_context, num_appearances = target_to_total_context(training_data)
+    ground_truth = {}
+    
+    for i in range(vocab_size):
+        total_context = target_total_context[i]
+        total = 2 * num_appearances[i] * window_size
+        y_true = {j: total_context[j] / total for j in range(len(total_context))}
+        ground_truth[i] = y_true
+    
+    return ground_truth
+
+def sort_predictions(pred_over_time):
+    size = len(pred_over_time[0])
+    sorted_pred_over_time = []
+    
+    for pred in pred_over_time:
+        sorted_pred = sorted(pred.items(), key=lambda item: item[1], reverse=True)
+        sorted_pred_over_time.append([item[1] for item in sorted_pred])
+    
+    return sorted_pred_over_time
+'''

@@ -1,61 +1,7 @@
-import re
 import matplotlib.pyplot as plt
-import numpy as np
 import matplotlib.animation as ani
 from random import random
 
-# process contents of a text file into list of words
-def get_data(filename):
-    contents = []
-    with open(filename) as f:
-        contents = f.read()
-    contents = contents.split('.')
-    data = []
-    for line in contents:
-        words = re.findall("\w+", line)
-        for w in words:
-            if len(w) > 0:
-                data.append(w.lower())
-    return data, contents
-
-# integer encoding so each word gets a unique index
-def encode_words(data):
-    # we want unique words
-    vocabulary = list(set(data))
-    word_to_int = dict((word, i) for i, word in enumerate(vocabulary))
-    int_to_word = dict((i, word) for i, word in enumerate(vocabulary))
-    return word_to_int, int_to_word, vocabulary
-
-# prints the training data in string representation
-def print_training_data(training_data, int_to_word):
-    for pair in training_data:
-        print('Target: ', int_to_word[pair[0][1]])
-        print('Context: ', pair[1][1])
-        print('\n')
-
-# prints the training data in vector representation
-def print_training_data_raw(training_data):
-    for pair in training_data:
-        print('Target: ', pair[0], '\nContext: ', pair[1])
-        print('\n')
-
-
-def print_info(testset, embedding_matrix, weights_out, word_to_int, int_to_word):
-    from skip_gram import forward_pass, cos_similarity_dict
-    num_similar = 10
-    for word in testset:
-        h, y, s = forward_pass(
-            word_to_int[word], embedding_matrix, weights_out)
-        similarities_in, similarities_out = cos_similarity_dict(
-            word, embedding_matrix, weights_out.T, word_to_int, int_to_word)
-        # print target word, context prediction with certainty, and a few of the most similar word vectors
-        print('{:<15}'.format('Target:'), word)
-        print('{:<15}'.format('Prediction:'), int_to_word[np.argmax(y)])
-        print('{:<15}'.format('Probability:'), y[np.argmax(y)].round(4))
-        print('{:<15}'.format('Most similar Input:'),
-              list(similarities_in)[:num_similar])
-        print('{:<15}'.format('Most similar Output:'),
-              list(similarities_out)[:num_similar], '\n')
 
 # visualize data as vectors (mode = 0) or predictions (mode != 0) over time
 def visualize_data(vectors_over_time, x, y_true, pred_over_time, epochs, int_to_word, test_word=None, mode=0):
