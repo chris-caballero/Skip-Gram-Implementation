@@ -1,4 +1,4 @@
-## **Skip Gram Implementation**
+# **Skip Gram Implementation**
 
 Undertaking this project as one of my initial explorations into machine learning was an invaluable experience, greatly enriching my understanding of neural network development. Through this endeavor, I have immersed myself in the intricacies of creating neural networks, allowing me to grasp the underlying concepts with greater depth. Overall, this project played a huge role in expanding my knowledge and developing a deeper appreciation for the nuances involved in neural network development.
 <br><br>
@@ -6,7 +6,17 @@ Since my initial implementation, I recently fully refactored my code and created
 
 ***
 
-### **How to Run**
+## Instructions
+
+[![Docker Repository](https://img.shields.io/badge/Docker%20Hub-Repository-blue)](https://hub.docker.com/repository/docker/chrismcaballero/carbon-footprint-analysis/general) <br>
+To download the image from my Docker Hub repository.
+### Run with docker
+
+1. Run **`docker build -t <image-name>`** or download the image linked above.
+2. Run **`docker run -p 8888:8888 <image-name>`**.
+3. Lastly, follow the link http://127.0.0.1:8888?token=docker.
+
+### Run without docker
 
 To run the notebook you will need to install specific requirements:
 
@@ -19,26 +29,24 @@ python3 -m venv <environment-name>
 pip install -r requirements.txt
 ```
 3. Run the notebook `src/notebooks/skip_gram.ipynb`
-
-***
-
+<br>
 If you are interested, there is also a unit_test file along with relevant utils you can adapt to test out different parts of the code.
 
 ***
 
-### **Results**
+## **Results**
 
 The first set of results is the [Tensorflow Projector](https://projector.tensorflow.org/?config=https://gist.githubusercontent.com/chris-caballero/2e058818e161d7362ae51368afa00eb4/raw/76d86fc5e085ca7a2d34b8e30cf4d73047405369/projector-config.json) of our final embeddings. Use this to get a lot of interesting information on the embeddings along with different dimensionality reduction techniques!
 
 In order to verify the results, I tracked the vectors during the training process and observed the convergence of probabilities. The implementation relies on a straightforward Python and NumPy approach, which inherently limits its scalability. However, it performs effectively at smaller scales, fulfilling its intended purpose and providing an interactive and engaging experience.
 
-#### Vector Movement Animation
+### Vector Movement Animation
 
 The animation below visualizes the convergence of word vectors based on the word distributions in the toy corpus. As the training progresses, various semantic relationships start to emerge - this is much clearer in large scale implementations of the Skip-Gram model that have a lot of text to work with.
 
 <img src="imgs/vectors.gif" alt="Vector Movement Animation" width="50%">
 
-#### Probability Convergence Animation
+### Probability Convergence Animation
 
 The animation below demonstrates the model converging to the ground truth distribution of words in the context of **'treasure'** within the dataset. The probabilities are sorted for comparison.
 
