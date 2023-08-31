@@ -37,11 +37,11 @@ In order to verify the results, I tracked the vectors during the training proces
 
 The animation below visualizes the convergence of word vectors based on the word distributions in the toy corpus. As the training progresses, various semantic relationships start to emerge - this is much clearer in large scale implementations of the Skip-Gram model that have a lot of text to work with.
 
-<img src="imgs/vectors.gif" alt="Vector Movement Animation">
+<img src="imgs/vectors.gif" alt="Vector Movement Animation" width="50%">
 
 #### Probability Convergence Animation
 
 The animation below demonstrates the model converging to the ground truth distribution of words in the context of **'treasure'** within the dataset. The probabilities are sorted for comparison.
 
-<img src="imgs/predictions.gif" alt="Probability Convergence Animation">
+<img src="imgs/predictions.gif" alt="Probability Convergence Animation" width="50%">
 
