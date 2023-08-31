@@ -29,6 +29,8 @@ This will generate **.gif** files in the `visualizations` folder.
 
 ### **Results**
 
+The first set of results is the [Tensorflow Projector](https://projector.tensorflow.org/?config=https://gist.githubusercontent.com/chris-caballero/2e058818e161d7362ae51368afa00eb4/raw/76d86fc5e085ca7a2d34b8e30cf4d73047405369/projector-config.json) of our final embeddings. Use this to get a lot of interesting information on the embeddings along with different dimensionality reduction techniques!
+
 In order to verify the results, I tracked the vectors during the training process and observed the convergence of probabilities. The implementation relies on a straightforward Python and NumPy approach, which inherently limits its scalability. However, it performs effectively at smaller scales, fulfilling its intended purpose and providing an interactive and engaging experience.
 
 #### Vector Movement Animation
