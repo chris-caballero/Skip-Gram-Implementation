@@ -2,10 +2,37 @@ import numpy as np
 from skip_gram import *
 from skip_gram_util import * 
 
+WINDOW_SIZE = 2
+EMBEDDING_DIM = 32
+EPOCHS = 300
+LR = 0.005
+TARGET_ID = 0
+
 def main():
-    file = '../data/word_dataset.txt'
-    data, contents = get_data(file)
-    word_to_int, int_to_word, vocabulary = encode_words(data)
+    DATA_DIR = '../../data/'
+    FILE = 'corpus.txt'
+
+    filename = DATA_DIR + FILE
+
+    corpus = get_data(filename)
+    words = process_data(corpus)
+
+    tokenizer = Tokenizer()
+    tokenizer.fit(words)
+    encoding = encode_words(words, tokenizer)
+
+    dataset = create_dataset(encoding, tokenizer, window_size=WINDOW_SIZE)
+
+    model = SkipGramModel(
+        vocab_size=len(tokenizer.vocab), 
+        embedding_dim=EMBEDDING_DIM,
+        learning_rate=LR,
+        target_id=TARGET_ID
+    )
+
+    train(model, epochs=EPOCHS, training_data=dataset)
+
+    most_similar = similar_words(model, target_id=TARGET_ID)
 
     window_size = 2
     num_features = 10

@@ -6,14 +6,22 @@ Undertaking this project as one of my initial explorations into machine learning
 
 ### **How to Run**
 
-To run the model on the toy corpus, follow these steps:
+To run the notebook you will need to install specific requirements:
 
-1. Execute the script `scripts/skip_gram_test.py`.
-2. Specify the toy corpus file `data/word_dataset.txt`.
-
-```shell
-python skip_gram_test.py
+1. Create a python virtual environment
+```bash
+python3 -m venv <environment-name>
 ```
+2. Install the requirements 
+```bash
+pip install -r requirements.txt
+```
+3. Run the notebook `src/notebooks/skip_gram.ipynb`
+
+***
+
+If you are interested, there is also a unit_test file along with relevant utils you can adapt to test out different parts of the code.
+
 
 This will generate **.gif** files in the `visualizations` folder.
 
@@ -25,13 +33,13 @@ In order to verify the results, I tracked the vectors during the training proces
 
 #### Vector Movement Animation
 
-The animation below visualizes the convergence of word vectors based on the word distributions in the toy corpus. As the training progresses, various semantic relationships start to emerge - this is significantly more evident in large scale efficient implementations of the Skip-Gram model.
+The animation below visualizes the convergence of word vectors based on the word distributions in the toy corpus. As the training progresses, various semantic relationships start to emerge - this is much clearer in large scale implementations of the Skip-Gram model that have a lot of text to work with.
 
-<img src="visualizations/vector_movement.gif" alt="Vector Movement Animation" width="400">
+<img src="imgs/vectors.gif" alt="Vector Movement Animation">
 
 #### Probability Convergence Animation
 
-The animation below demonstrates the model converging to the ground truth distribution of words in the context of **'every'** within the dataset. The probabilities are sorted for comparison.
+The animation below demonstrates the model converging to the ground truth distribution of words in the context of **'treasure'** within the dataset. The probabilities are sorted for comparison.
 
-<img src="visualizations/probability_convergence.gif" alt="Probability Convergence Animation" width="400">
+<img src="imgs/predictions.gif" alt="Probability Convergence Animation">
 

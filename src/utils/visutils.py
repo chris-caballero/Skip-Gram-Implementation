@@ -1,71 +1,111 @@
 import matplotlib.pyplot as plt
-import matplotlib.animation as ani
-from random import random
+import seaborn as sns
+from matplotlib.animation import FuncAnimation
+from sklearn.decomposition import TruncatedSVD, PCA
+import numpy as np
 
+# getting colors for our vectors, one per vector so we can easily distinguish the points
+def generate_unique_colors(num_colors):
+    cmap = plt.get_cmap('tab20')
+    return cmap(np.linspace(0, 1, num_colors))
 
-# visualize data as vectors (mode = 0) or predictions (mode != 0) over time
-def visualize_data(vectors_over_time, x, y_true, pred_over_time, epochs, int_to_word, test_word=None, mode=0):
-    fig = plt.figure()
-    animation = None
+def visualize_vectors_over_time(vectors_over_time, index_to_key, num_words=20):
+    plt.ioff()
 
-    colors = [[random(), random(), random()] for _ in range(len(x))]
+    bound = 2
+    vectors_to_display = []
+    # Only select vectors for the first num_words words
+    for vectors in vectors_over_time:
+        vectors_shown = [v for i, v in enumerate(vectors[:num_words]) if index_to_key[i] != 'voices']
+        vectors_to_display.append(vectors_shown)
 
-    def visualize_data_1(i):
-        fig.clear()
-        plt.scatter(vectors_over_time[i][0], vectors_over_time[i][1], c=colors)
-        for j in range(len(vectors_over_time[0][0])):
-            plt.annotate(int_to_word[j], xy=(vectors_over_time[i][0][j], vectors_over_time[i][1][j]), xytext=(
-                0, 7), textcoords='offset points', ha='left', va='center')
-        plt.title('Word Vector Movement in Training')
+    # Generate unique colors for each word
+    num_colors = num_words
+    unique_colors = generate_unique_colors(num_colors)
 
-    def visualize_data_2(i):
-        fig.clear()
-        plt.plot(x, y_true, color='green', label='Ground Truth')
-        plt.plot(x, pred_over_time[i], color='red', label='Predicted')
-        plt.title(f'Predicted Context of \'{test_word}\' vs Ground Truth')
-        plt.legend(loc='upper right')
-        plt.ylabel('Probability')
+    # Create a figure and axis
+    # Initialize scatter plot
+    fig, ax = plt.subplots(1, 1, figsize=(10, 8))
+    sc = ax.scatter([], [])
 
-    if mode == 0:
-        animation = ani.FuncAnimation(fig, visualize_data_1, frames=len(vectors_over_time), interval=epochs/10)
+    # Set the axis limits
+    ax.set_xlim(-bound, bound)
+    ax.set_ylim(-bound, bound)
+
+    # Create a list to hold the annotations
+    annotations = [ax.annotate('', (0, 0)) for _ in range(num_words)]
+
+    def update(frame):
+        # Update the scatter plot data for each frame
+        sc.set_offsets(vectors_to_display[frame])
+        sc.set_color(unique_colors[:len(vectors_to_display[frame])])  # Set colors
         
-    else:
-        animation = ani.FuncAnimation(fig, visualize_data_2, frames=len(pred_over_time), interval=epochs/10)
-        
-    plt.show(block=False)
+        # Update annotations with word labels
+        for i, (x, y) in enumerate(vectors_to_display[frame]):
+            annotations[i].set_text(index_to_key[i])  # Set word label
+            annotations[i].set_position((x, y))  # Set position
+            annotations[i].set_visible(True)  # Make annotation visible
 
-    return animation
+        return sc, *annotations
+
+    # Create the animation
+    ani = FuncAnimation(fig, update, frames=len(vectors_to_display), blit=True)
+
+    plt.ion()
+    
+    return ani
 
 
-def visualize_data_discrete(vectors_over_time, x, epochs, int_to_word):
-    import matplotlib
-    import tkinter as Tk
-    from matplotlib.widgets import Slider
-    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+def get_context_distribution(dataset, input_id, vocab_size):
+    context_accumulator = np.zeros(vocab_size)
 
-    matplotlib.use('TkAgg')
-    root = Tk.Tk()
+    # Iterate through the corpus data
+    for sample in dataset:
+        if sample['input_id'] == input_id:
+            context_accumulator += np.sum(sample['context'], axis=0)
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    fig.subplots_adjust(bottom=0.1)
+    # Calculate the distribution by normalizing the accumulator
+    context_distribution = context_accumulator / context_accumulator.sum()
 
-    canvas = FigureCanvasTkAgg(fig, root)
-    canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
+    return context_distribution
 
-    ax_time = fig.add_axes([0.12, 0.95, 0.78, 0.03])
-    slider = Slider(ax_time, 'Epoch', 0, epochs/10,
-                    valinit=0, valstep=1, dragging=True)
 
-    colors = [[random(), random(), random()] for _ in range(len(x))]
+def visualize_predictions_over_time(pred_over_time, y_true, index_to_key, num_words=20):
+    plt.ioff()
 
-    def visualize_data_1(i):
-        ax.clear()
-        ax.scatter(vectors_over_time[i][0], vectors_over_time[i][1], c=colors)
-        for j in range(len(vectors_over_time[0][0])):
-            ax.annotate(int_to_word[j], xy=(vectors_over_time[i][0][j], vectors_over_time[i][1][j]), xytext=(
-                0, 7), textcoords='offset points', ha='left', va='center', c=colors[j])
-        fig.canvas.draw_idle()
+    # Create a figure and axis
+    fig, ax = plt.subplots(1, 1, figsize=(10, 7))
+    lines, = ax.plot([], [], color='red', label='Predicted')
+    
+    ax.plot(y_true, color='green', label='Ground Truth')
 
-    slider.on_changed(visualize_data_1)
-    Tk.mainloop()
+    # Set the axis limits
+    ax.set_xlim(0, len(index_to_key))
+    ax.set_ylim(0, 1)  # Assuming context probabilities are between 0 and 1
+    
+    # Set labels and legend
+    ax.set_xlabel('Vocabulary')
+    ax.set_ylabel('Probability')
+    ax.set_title('Predicted vs Ground Truth Probability for "treasure"')
+    ax.legend(loc='upper right')
+
+    selected_indices = list(np.where(y_true > 0)[0])
+    selected_labels = [index_to_key[i] for i in selected_indices]
+
+    ax.set_xticks(selected_indices)
+    ax.set_xticklabels(selected_labels, rotation=90)
+
+    def update(frame):
+        prob_list = pred_over_time[frame]
+        lines.set_data(range(len(prob_list)), prob_list)
+
+        return lines,
+
+    # Create the animation
+    ani = FuncAnimation(fig, update, frames=len(pred_over_time), blit=True)
+
+    plt.tight_layout()
+
+    plt.ion()
+
+    return ani
