@@ -22,9 +22,6 @@ pip install -r requirements.txt
 
 If you are interested, there is also a unit_test file along with relevant utils you can adapt to test out different parts of the code.
 
-
-This will generate **.gif** files in the `visualizations` folder.
-
 ***
 
 ### **Results**
